@@ -3,160 +3,266 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#14121f">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="AnimeTracker">
-<title>AnimeTracker</title>
+<meta name="theme-color" content="#0a0d24">
+<title>VATOS — Valeur, Assistance, Transparence, Organisation, Service</title>
+<link rel="icon" href="logo.png">
 <style>
-  :root { --bg:#14121f; --card:#1f1c33; --accent:#8b5cf6; --text:#f1f0f7; --muted:#a09cbd; }
+  :root {
+    --fond:#080b1f; --carte:#141a4a; --carte2:#1b2260;
+    --or:#e8b923; --or2:#ffd95e; --vert:#2ecc71;
+    --texte:#f4f1e6; --doux:#a9b0d6;
+  }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:system-ui,sans-serif; padding-bottom:70px; }
-  header { padding:16px; position:sticky; top:0; background:var(--bg); z-index:5; }
-  h1 { font-size:1.4rem; }
-  input, select { width:100%; padding:12px; margin-top:10px; border-radius:10px; border:none; background:var(--card); color:var(--text); font-size:1rem; }
-  .filtres { display:flex; gap:8px; }
-  main { padding:0 16px; }
-  .carte { background:var(--card); border-radius:14px; padding:14px; margin-top:12px; }
-  .carte h3 { font-size:1.05rem; }
-  .meta { color:var(--muted); font-size:.85rem; margin-top:4px; }
-  .badge { display:inline-block; background:var(--accent); border-radius:8px; padding:2px 8px; font-size:.75rem; margin-right:6px; }
-  .prochaine { margin-top:8px; font-size:.9rem; color:#c4b5fd; }
-  .fav { float:right; background:none; border:none; font-size:1.4rem; cursor:pointer; }
-  nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); }
-  nav button { flex:1; padding:14px 0; background:none; border:none; color:var(--muted); font-size:.9rem; }
-  nav button.actif { color:var(--accent); font-weight:bold; }
-  .vue { display:none; } .vue.active { display:block; }
-  .bulle { padding:10px 14px; border-radius:14px; margin-top:10px; max-width:85%; }
-  .moi { background:var(--accent); margin-left:auto; }
-  .bot { background:var(--card); }
-  #chatForm { display:flex; gap:8px; }
-  #chatForm button { margin-top:10px; padding:0 18px; border:none; border-radius:10px; background:var(--accent); color:white; font-size:1rem; }
+  html { scroll-behavior:smooth; }
+  body {
+    background:var(--fond); color:var(--texte);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.5; padding-bottom:76px; min-height:100vh;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20px 30px, #fff8 50%, transparent 51%),
+      radial-gradient(1px 1px at 120px 80px, #fff6 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 220px 160px, #ffd95e88 50%, transparent 51%),
+      radial-gradient(ellipse at top, #2a3590aa, transparent 60%);
+    background-size:260px 200px, 260px 200px, 260px 200px, 100% 520px;
+    background-repeat:repeat, repeat, repeat, no-repeat;
+  }
+  header { text-align:center; padding:18px 16px 4px; }
+  .logo { width:min(78vw,320px); height:auto; filter:drop-shadow(0 0 18px #e8b92355); }
+  .devise { color:var(--doux); font-size:.85rem; margin-top:4px; }
+  main { padding:8px 16px 24px; max-width:720px; margin:0 auto; }
+  .vue { display:none; animation:apparait .35s ease; }
+  .vue.active { display:block; }
+  @keyframes apparait { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+  h2 { color:var(--or2); font-size:1.35rem; margin:18px 0 8px; }
+  h3 { color:var(--or); font-size:1.05rem; margin-bottom:4px; }
+  p { color:var(--texte); margin-top:6px; }
+  .doux { color:var(--doux); font-size:.9rem; }
+  .carte {
+    background:linear-gradient(160deg,var(--carte),var(--carte2));
+    border:1px solid #e8b92344; border-radius:16px; padding:16px; margin-top:12px;
+    box-shadow:0 4px 18px #0006;
+  }
+  .valeurs { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .valeurs span { background:#e8b92322; border:1px solid #e8b92366; color:var(--or2); border-radius:20px; padding:4px 12px; font-size:.85rem; }
+  .bouton {
+    display:inline-block; width:100%; text-align:center; margin-top:14px;
+    background:linear-gradient(135deg,var(--or2),var(--or)); color:#1a1400;
+    font-weight:700; font-size:1rem; padding:14px; border:none; border-radius:12px; cursor:pointer;
+    text-decoration:none; box-shadow:0 0 16px #e8b92355;
+  }
+  .bouton.vert { background:linear-gradient(135deg,#3be08a,var(--vert)); color:#04200f; box-shadow:0 0 16px #2ecc7155; }
+  .bouton.contour { background:transparent; color:var(--or2); border:1px solid var(--or); box-shadow:none; }
+  label { display:block; margin-top:12px; color:var(--or2); font-size:.9rem; }
+  input, select, textarea {
+    width:100%; margin-top:6px; padding:12px; border-radius:10px;
+    border:1px solid #e8b92355; background:#0b1030; color:var(--texte); font-size:1rem; font-family:inherit;
+  }
+  textarea { min-height:110px; resize:vertical; }
+  ul.etapes { margin:8px 0 0 20px; color:var(--texte); }
+  ul.etapes li { margin-top:6px; }
+  .etoiles { display:flex; gap:6px; margin-top:10px; justify-content:center; }
+  .etoiles button { background:none; border:none; font-size:2.2rem; color:#556; cursor:pointer; }
+  .etoiles button.on { color:var(--or2); text-shadow:0 0 10px #ffd95e; }
+  .alerte { background:#2ecc7118; border:1px solid #2ecc7188; border-radius:12px; padding:12px; margin-top:12px; color:#bff3d6; }
+  nav {
+    position:fixed; bottom:0; left:0; right:0; display:flex;
+    background:#0a0f33f2; border-top:1px solid #e8b92355; backdrop-filter:blur(8px);
+  }
+  nav button { flex:1; padding:12px 2px; background:none; border:none; color:var(--doux); font-size:.78rem; cursor:pointer; }
+  nav button .ic { display:block; font-size:1.2rem; }
+  nav button.actif { color:var(--or2); font-weight:700; }
+  footer { text-align:center; color:var(--doux); font-size:.8rem; padding:16px; }
 </style>
 </head>
 <body>
+
 <header>
-  <h1>🎌 AnimeTracker</h1>
-  <input id="recherche" type="search" placeholder="Rechercher un animé ou un manga...">
-  <div class="filtres">
-    <select id="fType"><option value="">Tous</option><option>Animé</option><option>Manga</option></select>
-    <select id="fGenre"><option value="">Tous les genres</option></select>
-  </div>
+  <img class="logo" src="logo.png" alt="Logo VATOS">
+  <div class="devise">Valeur · Assistance · Transparence · Organisation · Service</div>
 </header>
 
 <main>
-  <section id="vue-catalogue" class="vue active"></section>
-  <section id="vue-calendrier" class="vue"></section>
-  <section id="vue-favoris" class="vue"></section>
-  <section id="vue-assistant" class="vue">
-    <div id="chat"></div>
-    <form id="chatForm"><input id="chatInput" placeholder="Posez votre question..."><button>OK</button></form>
+
+  <!-- ACCUEIL -->
+  <section id="vue-accueil" class="vue active">
+    <h2>Bienvenue chez VATOS</h2>
+    <div class="carte">
+      <p>VATOS est un petit service de proximité à Kinshasa. Nous vous aidons à traiter vos documents, à faire vos recherches et à trouver les articles dont vous avez besoin, avec sérieux, clarté et respect des délais.</p>
+      <div class="valeurs">
+        <span>Valeur</span><span>Assistance</span><span>Transparence</span><span>Organisation</span><span>Service</span>
+      </div>
+      <button class="bouton" onclick="aller('commander')">Faire une demande</button>
+      <button class="bouton contour" onclick="aller('services')">Voir nos services</button>
+    </div>
+    <div class="carte">
+      <h3>Nos horaires de réponse</h3>
+      <p id="horaires"></p>
+      <p class="doux">Nous répondons à vos messages WhatsApp pendant ces horaires.</p>
+    </div>
   </section>
+
+  <!-- SERVICES -->
+  <section id="vue-services" class="vue">
+    <h2>Nos services</h2>
+    <div id="liste-services"></div>
+    <div class="carte">
+      <h3>Comment nous calculons le prix</h3>
+      <p>Chaque demande est étudiée. Le devis tient compte de l'objet ou du travail demandé, de son coût, du transport et du déplacement si nécessaire. Vous connaissez le prix avant que nous commencions.</p>
+    </div>
+  </section>
+
+  <!-- COMMANDER -->
+  <section id="vue-commander" class="vue">
+    <h2>Faire une demande</h2>
+    <div class="carte">
+      <label for="nom">Votre nom</label>
+      <input id="nom" placeholder="Ex. Marie">
+      <label for="service">Service souhaité</label>
+      <select id="service"></select>
+      <label for="details">Décrivez votre besoin</label>
+      <textarea id="details" placeholder="Ex. Mettre en forme mon exposé de 10 pages, avec page de garde."></textarea>
+      <label for="lieu">Votre quartier ou lieu de remise</label>
+      <input id="lieu" placeholder="Ex. Gombe, à l'école...">
+      <label for="delai">Pour quand ?</label>
+      <input id="delai" placeholder="Ex. Vendredi">
+      <button class="bouton vert" onclick="envoyerCommande()">Envoyer par WhatsApp</button>
+      <p class="doux">Vous allez être redirigé vers WhatsApp avec votre message déjà écrit. Il vous suffit d'appuyer sur Envoyer.</p>
+    </div>
+    <div class="carte">
+      <h3>Comment ça marche</h3>
+      <ul class="etapes">
+        <li>Vous remplissez ce formulaire et l'envoyez par WhatsApp.</li>
+        <li>Nous étudions votre demande et vous envoyons un devis clair.</li>
+        <li>Vous acceptez le devis, et nous convenons ensemble des modalités.</li>
+        <li>Nous réalisons la demande et vous la remettons au lieu convenu.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- AVIS -->
+  <section id="vue-avis" class="vue">
+    <h2>Votre avis</h2>
+    <div id="zone-avis"></div>
+  </section>
+
+  <!-- A PROPOS -->
+  <section id="vue-apropos" class="vue">
+    <h2>À propos de VATOS</h2>
+    <div class="carte">
+      <p>VATOS signifie <strong>Valeur, Assistance, Transparence, Organisation, Service</strong>. C'est notre promesse : un travail utile, une aide réelle, des prix clairs, une bonne organisation et un service fiable.</p>
+      <p>Nous sommes une équipe de jeunes de Kinshasa. Nous commençons petit, avec l'envie de bien faire et de gagner votre confiance, une demande après l'autre.</p>
+    </div>
+    <div class="carte">
+      <h3>Nos engagements</h3>
+      <ul class="etapes">
+        <li>Un prix annoncé avant de commencer.</li>
+        <li>Des délais respectés ou une explication honnête.</li>
+        <li>Vos documents et informations traités avec discrétion.</li>
+      </ul>
+    </div>
+    <div class="carte">
+      <h3>Nous contacter</h3>
+      <a class="bouton vert" id="lien-contact" href="#">Écrire sur WhatsApp</a>
+    </div>
+  </section>
+
 </main>
 
+<footer>© VATOS Kinshasa — Valeur · Assistance · Transparence · Organisation · Service</footer>
+
 <nav>
-  <button data-vue="catalogue" class="actif">Catalogue</button>
-  <button data-vue="calendrier">Sorties</button>
-  <button data-vue="favoris">Favoris</button>
-  <button data-vue="assistant">Assistant</button>
+  <button class="actif" data-vue="accueil"><span class="ic">✦</span>Accueil</button>
+  <button data-vue="services"><span class="ic">◆</span>Services</button>
+  <button data-vue="commander"><span class="ic">✉</span>Commander</button>
+  <button data-vue="avis"><span class="ic">★</span>Avis</button>
+  <button data-vue="apropos"><span class="ic">ℹ</span>À propos</button>
 </nav>
 
 <script>
-// ====== DONNÉES : À VÉRIFIER ET À METTRE À JOUR ======
-// prochaine = date de la prochaine sortie annoncée (format AAAA-MM-JJ) ou "" si inconnue
-const CATALOGUE = [
-  { id:1, titre:"Moi, quand je me réincarne en Slime", type:"Animé", genre:"Isekai", sortis:"Saisons 1 à 4", plateformes:"Crunchyroll, ADN", prochaine:"", note:"Saison 5 : date à confirmer" },
-  { id:2, titre:"Moi, quand je me réincarne en Slime", type:"Manga", genre:"Isekai", sortis:"Plus de 25 tomes", plateformes:"Kurokawa (édition française)", prochaine:"", note:"Publication en cours" },
-  { id:3, titre:"Frieren", type:"Animé", genre:"Aventure", sortis:"Saison 1", plateformes:"Crunchyroll", prochaine:"", note:"Saison 2 annoncée, date à confirmer" },
-  { id:4, titre:"One Piece", type:"Manga", genre:"Aventure", sortis:"Plus de 100 tomes", plateformes:"Glénat (édition française)", prochaine:"", note:"Publication en cours" }
-];
-// ======================================================
+// ================= À MODIFIER ICI =================
+const CONFIG = {
+  // Numéro professionnel au format international, sans + ni espaces. Exemple : "243XXXXXXXXX"
+  WHATSAPP: "243XXXXXXXXX",
+  HORAIRES: "Lundi à vendredi : 16h à 19h — Samedi : 9h à 13h — Dimanche : fermé",
+  SERVICES: [
+    { nom:"Documents", titre:"Traitement et mise en forme de documents", texte:"Mise en ordre, saisie, présentation propre, page de garde, correction de vos dossiers, exposés et travaux. Nous embellissons vos documents pour qu'ils fassent bonne impression." },
+    { nom:"Recherches", titre:"Recherches pour vous", texte:"Vous avez besoin d'informations, de sources ou d'un résumé sur un sujet ? Nous cherchons pour vous et vous remettons un résultat clair et organisé." },
+    { nom:"Articles", titre:"Achat et vente d'articles sur demande", texte:"Bijoux et autres articles : dites-nous ce que vous cherchez, nous étudions la demande et vous proposons un prix avec le transport et le déplacement inclus si nécessaire." }
+  ]
+};
+// ===================================================
 
-let favoris = JSON.parse(localStorage.getItem("favoris") || "[]");
 const $ = s => document.querySelector(s);
 
-function genres() {
-  [...new Set(CATALOGUE.map(c => c.genre))].forEach(g => {
-    const o = document.createElement("option"); o.textContent = g; $("#fGenre").appendChild(o);
-  });
+function aller(nom) {
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("actif", b.dataset.vue === nom));
+  document.querySelectorAll(".vue").forEach(v => v.classList.remove("active"));
+  $("#vue-" + nom).classList.add("active");
+  if (nom === "avis") afficherAvis();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => aller(b.dataset.vue)));
+
+function lienWhatsApp(message) {
+  return "https://wa.me/" + CONFIG.WHATSAPP + "?text=" + encodeURIComponent(message);
 }
 
-function carte(c) {
-  const estFav = favoris.includes(c.id);
-  return `<div class="carte">
-    <button class="fav" onclick="basculerFav(${c.id})">${estFav ? "❤️" : "🤍"}</button>
-    <h3>${c.titre}</h3>
-    <div class="meta"><span class="badge">${c.type}</span>${c.genre}</div>
-    <div class="meta">Sorti : ${c.sortis}</div>
-    <div class="meta">Où regarder / lire : ${c.plateformes}</div>
-    <div class="prochaine">📅 ${c.prochaine ? "Prochaine sortie : " + c.prochaine : c.note}</div>
-  </div>`;
+// Remplissage
+$("#horaires").textContent = CONFIG.HORAIRES;
+$("#liste-services").innerHTML = CONFIG.SERVICES.map(s =>
+  `<div class="carte"><h3>${s.titre}</h3><p>${s.texte}</p></div>`).join("");
+$("#service").innerHTML = CONFIG.SERVICES.map(s => `<option>${s.nom}</option>`).join("");
+$("#lien-contact").href = lienWhatsApp("Bonjour VATOS, j'ai une question.");
+
+// Compteur de commandes (gardé sur ce téléphone)
+function nbCommandes() { return parseInt(localStorage.getItem("vatos_commandes") || "0", 10); }
+
+function envoyerCommande() {
+  const nom = $("#nom").value.trim();
+  const details = $("#details").value.trim();
+  if (!nom || !details) { alert("Merci d'indiquer votre nom et de décrire votre besoin."); return; }
+  const msg =
+    "Bonjour VATOS,\n" +
+    "Nom : " + nom + "\n" +
+    "Service : " + $("#service").value + "\n" +
+    "Besoin : " + details + "\n" +
+    "Lieu : " + ($("#lieu").value.trim() || "à préciser") + "\n" +
+    "Délai : " + ($("#delai").value.trim() || "à préciser") + "\n" +
+    "Pouvez-vous m'envoyer un devis ?";
+  localStorage.setItem("vatos_commandes", String(nbCommandes() + 1));
+  window.open(lienWhatsApp(msg), "_blank");
 }
 
-function afficherCatalogue() {
-  const q = $("#recherche").value.toLowerCase();
-  const t = $("#fType").value, g = $("#fGenre").value;
-  const liste = CATALOGUE.filter(c =>
-    c.titre.toLowerCase().includes(q) && (!t || c.type === t) && (!g || c.genre === g));
-  $("#vue-catalogue").innerHTML = liste.map(carte).join("") || "<p class='meta'>Aucun résultat.</p>";
-}
-
-function afficherCalendrier() {
-  const liste = CATALOGUE.filter(c => c.prochaine).sort((a,b) => a.prochaine.localeCompare(b.prochaine));
-  $("#vue-calendrier").innerHTML = liste.map(carte).join("") ||
-    "<p class='meta' style='margin-top:12px'>Aucune date annoncée pour le moment. Ajoutez des dates dans la liste CATALOGUE.</p>";
-}
-
-function afficherFavoris() {
-  const liste = CATALOGUE.filter(c => favoris.includes(c.id));
-  $("#vue-favoris").innerHTML = liste.map(carte).join("") || "<p class='meta' style='margin-top:12px'>Pas encore de favoris.</p>";
-}
-
-function basculerFav(id) {
-  favoris = favoris.includes(id) ? favoris.filter(f => f !== id) : [...favoris, id];
-  localStorage.setItem("favoris", JSON.stringify(favoris));
-  rafraichir();
-}
-
-function rafraichir() { afficherCatalogue(); afficherCalendrier(); afficherFavoris(); }
-
-// ====== ASSISTANT SIMPLE ======
-function repondre(q) {
-  q = q.toLowerCase();
-  const trouve = CATALOGUE.find(c => q.includes(c.titre.toLowerCase().split(",")[0].split(" ").slice(-1)[0]) || q.includes(c.titre.toLowerCase()));
-  if ((q.includes("quand") || q.includes("date") || q.includes("sort")) && trouve) {
-    return trouve.prochaine ? `${trouve.titre} (${trouve.type}) : prochaine sortie le ${trouve.prochaine}.` : `${trouve.titre} : ${trouve.note}.`;
+// Avis : proposés à partir de la 2e commande envoyée depuis ce téléphone
+let note = 0;
+function afficherAvis() {
+  const zone = $("#zone-avis");
+  if (nbCommandes() < 2) {
+    zone.innerHTML = `<div class="carte"><p>Pour garantir des avis sincères, la notation est proposée à nos clients à partir de leur deuxième commande.</p><p class="doux">Commandes envoyées depuis cet appareil : ${nbCommandes()}</p></div>`;
+    return;
   }
-  const g = [...new Set(CATALOGUE.map(c => c.genre))].find(x => q.includes(x.toLowerCase()));
-  if (q.includes("propose") || q.includes("recommande") || q.includes("conseille")) {
-    const choix = CATALOGUE.filter(c => !g || c.genre === g);
-    const c = choix[Math.floor(Math.random() * choix.length)];
-    return c ? `Je vous suggère : ${c.titre} (${c.type}, ${c.genre}).` : "Je n'ai rien dans ce genre pour l'instant.";
+  if (localStorage.getItem("vatos_avis_envoye") === "oui") {
+    zone.innerHTML = `<div class="alerte">Merci pour votre avis, il nous aide à nous améliorer !</div>`;
+    return;
   }
-  if (trouve) return `${trouve.titre} : ${trouve.type} ${trouve.genre}. Sorti : ${trouve.sortis}. ${trouve.note}.`;
-  return "Essayez par exemple : « quand sort la saison de Frieren ? » ou « propose-moi un animé d'aventure ».";
+  zone.innerHTML = `<div class="carte"><h3>Comment s'est passée votre expérience ?</h3>
+    <div class="etoiles" id="etoiles">${[1,2,3,4,5].map(i => `<button data-n="${i}">★</button>`).join("")}</div>
+    <label for="commentaire">Un mot (facultatif)</label>
+    <textarea id="commentaire" placeholder="Ce qui vous a plu, ce qu'on peut améliorer..."></textarea>
+    <button class="bouton vert" onclick="envoyerAvis()">Envoyer mon avis par WhatsApp</button></div>`;
+  document.querySelectorAll("#etoiles button").forEach(b => b.addEventListener("click", () => {
+    note = parseInt(b.dataset.n, 10);
+    document.querySelectorAll("#etoiles button").forEach(x => x.classList.toggle("on", parseInt(x.dataset.n, 10) <= note));
+  }));
 }
 
-function ajouterBulle(txt, cls) {
-  const d = document.createElement("div"); d.className = "bulle " + cls; d.textContent = txt;
-  $("#chat").appendChild(d); d.scrollIntoView();
+function envoyerAvis() {
+  if (!note) { alert("Touchez une étoile pour donner votre note."); return; }
+  const msg = "Mon avis sur VATOS : " + "★".repeat(note) + "☆".repeat(5 - note) + " (" + note + "/5)\n" + ($("#commentaire").value.trim() || "");
+  localStorage.setItem("vatos_avis_envoye", "oui");
+  window.open(lienWhatsApp(msg), "_blank");
+  afficherAvis();
 }
-
-$("#chatForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const q = $("#chatInput").value.trim(); if (!q) return;
-  ajouterBulle(q, "moi"); ajouterBulle(repondre(q), "bot"); $("#chatInput").value = "";
-});
-ajouterBulle("Bonjour ! Posez-moi une question sur une sortie ou demandez une recommandation.", "bot");
-
-// ====== NAVIGATION ======
-document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll("nav button").forEach(x => x.classList.remove("actif"));
-  document.querySelectorAll(".vue").forEach(x => x.classList.remove("active"));
-  b.classList.add("actif"); $("#vue-" + b.dataset.vue).classList.add("active");
-}));
-
-["#recherche", "#fType", "#fGenre"].forEach(s => $(s).addEventListener("input", afficherCatalogue));
-genres(); rafraichir();
 </script>
 </body>
-</html>
+  </html>
