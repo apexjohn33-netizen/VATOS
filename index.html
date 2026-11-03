@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14121f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AnimeTracker">
+<title>AnimeTracker</title>
+<style>
+  :root { --bg:#14121f; --card:#1f1c33; --accent:#8b5cf6; --text:#f1f0f7; --muted:#a09cbd; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:system-ui,sans-serif; padding-bottom:70px; }
+  header { padding:16px; position:sticky; top:0; background:var(--bg); z-index:5; }
+  h1 { font-size:1.4rem; }
+  input, select { width:100%; padding:12px; margin-top:10px; border-radius:10px; border:none; background:var(--card); color:var(--text); font-size:1rem; }
+  .filtres { display:flex; gap:8px; }
+  main { padding:0 16px; }
+  .carte { background:var(--card); border-radius:14px; padding:14px; margin-top:12px; }
+  .carte h3 { font-size:1.05rem; }
+  .meta { color:var(--muted); font-size:.85rem; margin-top:4px; }
+  .badge { display:inline-block; background:var(--accent); border-radius:8px; padding:2px 8px; font-size:.75rem; margin-right:6px; }
+  .prochaine { margin-top:8px; font-size:.9rem; color:#c4b5fd; }
+  .fav { float:right; background:none; border:none; font-size:1.4rem; cursor:pointer; }
+  nav { position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card); }
+  nav button { flex:1; padding:14px 0; background:none; border:none; color:var(--muted); font-size:.9rem; }
+  nav button.actif { color:var(--accent); font-weight:bold; }
+  .vue { display:none; } .vue.active { display:block; }
+  .bulle { padding:10px 14px; border-radius:14px; margin-top:10px; max-width:85%; }
+  .moi { background:var(--accent); margin-left:auto; }
+  .bot { background:var(--card); }
+  #chatForm { display:flex; gap:8px; }
+  #chatForm button { margin-top:10px; padding:0 18px; border:none; border-radius:10px; background:var(--accent); color:white; font-size:1rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎌 AnimeTracker</h1>
+  <input id="recherche" type="search" placeholder="Rechercher un animé ou un manga...">
+  <div class="filtres">
+    <select id="fType"><option value="">Tous</option><option>Animé</option><option>Manga</option></select>
+    <select id="fGenre"><option value="">Tous les genres</option></select>
+  </div>
+</header>
+
+<main>
+  <section id="vue-catalogue" class="vue active"></section>
+  <section id="vue-calendrier" class="vue"></section>
+  <section id="vue-favoris" class="vue"></section>
+  <section id="vue-assistant" class="vue">
+    <div id="chat"></div>
+    <form id="chatForm"><input id="chatInput" placeholder="Posez votre question..."><button>OK</button></form>
+  </section>
+</main>
+
+<nav>
+  <button data-vue="catalogue" class="actif">Catalogue</button>
+  <button data-vue="calendrier">Sorties</button>
+  <button data-vue="favoris">Favoris</button>
+  <button data-vue="assistant">Assistant</button>
+</nav>
+
+<script>
+// ====== DONNÉES : À VÉRIFIER ET À METTRE À JOUR ======
+// prochaine = date de la prochaine sortie annoncée (format AAAA-MM-JJ) ou "" si inconnue
+const CATALOGUE = [
+  { id:1, titre:"Moi, quand je me réincarne en Slime", type:"Animé", genre:"Isekai", sortis:"Saisons 1 à 4", plateformes:"Crunchyroll, ADN", prochaine:"", note:"Saison 5 : date à confirmer" },
+  { id:2, titre:"Moi, quand je me réincarne en Slime", type:"Manga", genre:"Isekai", sortis:"Plus de 25 tomes", plateformes:"Kurokawa (édition française)", prochaine:"", note:"Publication en cours" },
+  { id:3, titre:"Frieren", type:"Animé", genre:"Aventure", sortis:"Saison 1", plateformes:"Crunchyroll", prochaine:"", note:"Saison 2 annoncée, date à confirmer" },
+  { id:4, titre:"One Piece", type:"Manga", genre:"Aventure", sortis:"Plus de 100 tomes", plateformes:"Glénat (édition française)", prochaine:"", note:"Publication en cours" }
+];
+// ======================================================
+
+let favoris = JSON.parse(localStorage.getItem("favoris") || "[]");
+const $ = s => document.querySelector(s);
+
+function genres() {
+  [...new Set(CATALOGUE.map(c => c.genre))].forEach(g => {
+    const o = document.createElement("option"); o.textContent = g; $("#fGenre").appendChild(o);
+  });
+}
+
+function carte(c) {
+  const estFav = favoris.includes(c.id);
+  return `<div class="carte">
+    <button class="fav" onclick="basculerFav(${c.id})">${estFav ? "❤️" : "🤍"}</button>
+    <h3>${c.titre}</h3>
+    <div class="meta"><span class="badge">${c.type}</span>${c.genre}</div>
+    <div class="meta">Sorti : ${c.sortis}</div>
+    <div class="meta">Où regarder / lire : ${c.plateformes}</div>
+    <div class="prochaine">📅 ${c.prochaine ? "Prochaine sortie : " + c.prochaine : c.note}</div>
+  </div>`;
+}
+
+function afficherCatalogue() {
+  const q = $("#recherche").value.toLowerCase();
+  const t = $("#fType").value, g = $("#fGenre").value;
+  const liste = CATALOGUE.filter(c =>
+    c.titre.toLowerCase().includes(q) && (!t || c.type === t) && (!g || c.genre === g));
+  $("#vue-catalogue").innerHTML = liste.map(carte).join("") || "<p class='meta'>Aucun résultat.</p>";
+}
+
+function afficherCalendrier() {
+  const liste = CATALOGUE.filter(c => c.prochaine).sort((a,b) => a.prochaine.localeCompare(b.prochaine));
+  $("#vue-calendrier").innerHTML = liste.map(carte).join("") ||
+    "<p class='meta' style='margin-top:12px'>Aucune date annoncée pour le moment. Ajoutez des dates dans la liste CATALOGUE.</p>";
+}
+
+function afficherFavoris() {
+  const liste = CATALOGUE.filter(c => favoris.includes(c.id));
+  $("#vue-favoris").innerHTML = liste.map(carte).join("") || "<p class='meta' style='margin-top:12px'>Pas encore de favoris.</p>";
+}
+
+function basculerFav(id) {
+  favoris = favoris.includes(id) ? favoris.filter(f => f !== id) : [...favoris, id];
+  localStorage.setItem("favoris", JSON.stringify(favoris));
+  rafraichir();
+}
+
+function rafraichir() { afficherCatalogue(); afficherCalendrier(); afficherFavoris(); }
+
+// ====== ASSISTANT SIMPLE ======
+function repondre(q) {
+  q = q.toLowerCase();
+  const trouve = CATALOGUE.find(c => q.includes(c.titre.toLowerCase().split(",")[0].split(" ").slice(-1)[0]) || q.includes(c.titre.toLowerCase()));
+  if ((q.includes("quand") || q.includes("date") || q.includes("sort")) && trouve) {
+    return trouve.prochaine ? `${trouve.titre} (${trouve.type}) : prochaine sortie le ${trouve.prochaine}.` : `${trouve.titre} : ${trouve.note}.`;
+  }
+  const g = [...new Set(CATALOGUE.map(c => c.genre))].find(x => q.includes(x.toLowerCase()));
+  if (q.includes("propose") || q.includes("recommande") || q.includes("conseille")) {
+    const choix = CATALOGUE.filter(c => !g || c.genre === g);
+    const c = choix[Math.floor(Math.random() * choix.length)];
+    return c ? `Je vous suggère : ${c.titre} (${c.type}, ${c.genre}).` : "Je n'ai rien dans ce genre pour l'instant.";
+  }
+  if (trouve) return `${trouve.titre} : ${trouve.type} ${trouve.genre}. Sorti : ${trouve.sortis}. ${trouve.note}.`;
+  return "Essayez par exemple : « quand sort la saison de Frieren ? » ou « propose-moi un animé d'aventure ».";
+}
+
+function ajouterBulle(txt, cls) {
+  const d = document.createElement("div"); d.className = "bulle " + cls; d.textContent = txt;
+  $("#chat").appendChild(d); d.scrollIntoView();
+}
+
+$("#chatForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const q = $("#chatInput").value.trim(); if (!q) return;
+  ajouterBulle(q, "moi"); ajouterBulle(repondre(q), "bot"); $("#chatInput").value = "";
+});
+ajouterBulle("Bonjour ! Posez-moi une question sur une sortie ou demandez une recommandation.", "bot");
+
+// ====== NAVIGATION ======
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.remove("actif"));
+  document.querySelectorAll(".vue").forEach(x => x.classList.remove("active"));
+  b.classList.add("actif"); $("#vue-" + b.dataset.vue).classList.add("active");
+}));
+
+["#recherche", "#fType", "#fGenre"].forEach(s => $(s).addEventListener("input", afficherCatalogue));
+genres(); rafraichir();
+</script>
+</body>
+</html>
